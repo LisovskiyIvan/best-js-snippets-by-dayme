@@ -1,0 +1,20 @@
+{
+  "name": "best-js-snippets-by-dayme",
+  "displayName": "best js snippets by dayme",
+  "description": "My collection of js snippets I use dayli",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.103.0"
+  },
+  "categories": [
+    "Snippets"
+  ],
+  "contributes": {
+    "snippets": [
+      {
+        "language": "javascript",
+        "path": "./snippets/snippets.code-snippets"
+      }
+    ]
+  }
+}
