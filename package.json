@@ -1,8 +1,31 @@
 {
   "name": "best-js-snippets-by-dayme",
-  "displayName": "best js snippets by dayme",
-  "description": "My collection of js snippets I use dayli",
+  "displayName": "Best JS Snippets by Dayme",
+  "description": "Collection of useful JavaScript snippets for daily development",
   "version": "0.0.1",
+  "publisher": "LisovskiyIvan",
+  "author": {
+    "name": "Ivan Lisovskiy",
+    "url": "https://github.com/LisovskiyIvan"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LisovskiyIvan/best-js-snippets-by-dayme.git"
+  },
+  "homepage": "https://github.com/LisovskiyIvan/best-js-snippets-by-dayme#readme",
+  "bugs": {
+    "url": "https://github.com/LisovskiyIvan/best-js-snippets-by-dayme/issues"
+  },
+  "keywords": [
+    "javascript",
+    "snippets",
+    "js",
+    "code-snippets",
+    "productivity",
+    "development",
+    "vscode-extension"
+  ],
   "engines": {
     "vscode": "^1.103.0"
   },
@@ -16,6 +39,10 @@
     "snippets": [
       {
         "language": "javascript",
+        "path": "./snippets/snippets.code-snippets"
+      },
+      {
+        "language": "typescript",
         "path": "./snippets/snippets.code-snippets"
       }
     ]

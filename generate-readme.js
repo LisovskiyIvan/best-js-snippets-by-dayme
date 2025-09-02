@@ -1,9 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 
-// Читаем файл сниппетов
+// Читаем файлы
 const snippetsPath = path.join(__dirname, 'snippets', 'snippets.code-snippets');
+const packagePath = path.join(__dirname, 'package.json');
 const snippetsContent = fs.readFileSync(snippetsPath, 'utf8');
+const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
 // Парсим JSON (удаляем комментарии)
 const cleanJson = snippetsContent.replace(/\/\/.*$/gm, '').replace(/,(\s*[}\]])/g, '$1');
@@ -62,7 +64,7 @@ let readme = `# 🚀 Best JS Snippets by Dayme
 
 > Коллекция самых полезных JavaScript сниппетов для ежедневной разработки
 
-[![Version](https://img.shields.io/badge/version-0.0.1-blue.svg)](https://github.com/LisovskiyIvan/best-js-snippets-by-dayme)
+[![Version](https://img.shields.io/badge/version-${packageJson.version}-blue.svg)](https://github.com/LisovskiyIvan/best-js-snippets-by-dayme)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![GitHub](https://img.shields.io/badge/GitHub-LisovskiyIvan-black.svg)](https://github.com/LisovskiyIvan)
 
@@ -172,7 +174,7 @@ MIT License - используйте свободно!
 
 ## 🔄 История изменений
 
-### v0.0.1 (Текущая версия)
+### v${packageJson.version} (Текущая версия)
 - ✅ Базовый набор JavaScript сниппетов
 - ✅ Консольные команды и отладка
 - ✅ Функции и стрелочные функции  
