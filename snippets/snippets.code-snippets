@@ -222,7 +222,7 @@
         "description": "setInterval функция"
     },
     "this": {
-        "prefix": ["th", "thi", "thin"],
+        "prefix": ["t", "tg", "tf", "th", "thi", "thin"],
         "body": "this.$0",
         "description": "this"
     }

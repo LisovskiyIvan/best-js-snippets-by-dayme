@@ -27,7 +27,7 @@
     "vscode-extension"
   ],
   "engines": {
-    "vscode": "^1.103.0"
+    "vscode": "^1.74.0"
   },
   "categories": [
     "Snippets"

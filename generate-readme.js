@@ -11,82 +11,67 @@ const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 const cleanJson = snippetsContent.replace(/\/\/.*$/gm, '').replace(/,(\s*[}\]])/g, '$1');
 const snippets = JSON.parse(cleanJson);
 
-// Группируем сниппеты по категориям
+// Группируем сниппеты по категориям (без эмодзи)
 const categories = {
-    '🖥️ Console': ['Console Log', 'Console warn', 'Console Time', 'Console TimeEnd'],
-    '⚡ Functions': ['Arrow Function', 'Async Arrow Function', 'Async Function', 'Try Catch'],
-    '🔄 Loops & Arrays': ['For Loop', 'ForEach', 'ForOf', 'Map', 'Filter', 'Find', 'Some', 'Every'],
-    '📦 Objects': ['Object keys', 'Object values', 'Object entries', 'Destructuring Assignment'],
-    '🔮 Async & Promises': ['Promise'],
-    '📋 Modules': ['Import', 'Export Default', 'Export Default Class'],
-    '⏰ Timers': ['Set Timeout', 'Set Interval'],
-    '🛠️ Utilities': ['Template Literal', 'this']
+    'Console': ['Console Log', 'Console warn', 'Console Time', 'Console TimeEnd'],
+    'Functions': ['Arrow Function', 'Async Arrow Function', 'Async Function', 'Try Catch'],
+    'Loops & Arrays': ['For Loop', 'ForEach', 'ForOf', 'Map', 'Filter', 'Find', 'Some', 'Every'],
+    'Objects': ['Object keys', 'Object values', 'Object entries', 'Destructuring Assignment'],
+    'Async & Promises': ['Promise'],
+    'Modules': ['Import', 'Export Default', 'Export Default Class'],
+    'Timers': ['Set Timeout', 'Set Interval'],
+    'Utilities': ['Template Literal', 'this']
 };
 
-// Функция для создания красивого отображения кода
-function formatSnippetCode(snippet) {
-    const body = Array.isArray(snippet.body) ? snippet.body : [snippet.body];
-
-    // Если код короткий (одна строка без табов), показываем inline
-    if (body.length === 1 && !body[0].includes('\t') && body[0].length < 50) {
-        return `\`${body[0].replace(/\$/g, '\\$')}\``;
-    }
-
-    // Для многострочного кода создаем блок
-    const formattedCode = body
-        .map(line => line.replace(/\t/g, '  ').replace(/\$/g, '\\$'))
-        .join('\n');
-
-    return '```javascript\n' + formattedCode + '\n```';
-}
-
-// Функция для создания секции сниппетов
-function createSnippetSection(categorySnippets) {
-    let section = '';
+// Функция для создания таблицы сниппетов
+function createSnippetTable(categorySnippets) {
+    let table = '| Префикс | Описание | Код |\n';
+    table += '|---------|----------|-----|\n';
 
     categorySnippets.forEach(snippetName => {
         const snippet = snippets[snippetName];
         if (snippet) {
             const prefix = Array.isArray(snippet.prefix) ? snippet.prefix.join(', ') : snippet.prefix;
             const description = snippet.description;
-            const code = formatSnippetCode(snippet);
 
-            section += `#### \`${prefix}\` - ${description}\n\n`;
-            section += code + '\n\n';
+            // Упрощаем отображение кода
+            const body = Array.isArray(snippet.body) ? snippet.body : [snippet.body];
+            let code = body.join(' ').replace(/\$/g, '').replace(/\t/g, '  ');
+
+            // Обрезаем длинный код
+            if (code.length > 60) {
+                code = code.substring(0, 57) + '...';
+            }
+
+            table += `| \`${prefix}\` | ${description} | \`${code}\` |\n`;
         }
     });
 
-    return section;
+    return table;
 }
 
 // Генерируем README
-let readme = `# 🚀 Best JS Snippets by Dayme
+let readme = `# Best JS Snippets by Dayme
 
-> Коллекция самых полезных JavaScript сниппетов для ежедневной разработки
-
-[![Version](https://img.shields.io/badge/version-${packageJson.version}-blue.svg)](https://github.com/LisovskiyIvan/best-js-snippets-by-dayme)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![GitHub](https://img.shields.io/badge/GitHub-LisovskiyIvan-black.svg)](https://github.com/LisovskiyIvan)
-
-Ускорьте свой workflow с помощью этих готовых фрагментов кода! Каждый сниппет тщательно продуман для максимальной эффективности.
+Коллекция полезных JavaScript сниппетов для ежедневной разработки.
 
 **Автор:** [Ivan Lisovskiy](https://github.com/LisovskiyIvan)
 
-## 📦 Установка
+## Установка
 
 1. Откройте VS Code
-2. Перейдите в Extensions (\`Ctrl+Shift+X\`)
-3. Найдите "**best js snippets by dayme**"
-4. Нажмите **Install**
+2. Перейдите в Extensions (Ctrl+Shift+X)
+3. Найдите "best js snippets by dayme"
+4. Нажмите Install
 
-## 🎯 Как использовать
+## Как использовать
 
-1. Откройте JavaScript файл (\`.js\`, \`.jsx\`, \`.ts\`, \`.tsx\`)
-2. Начните набирать **префикс** сниппета
-3. Нажмите \`Tab\` для вставки кода
-4. Используйте \`Tab\` для перехода между параметрами
+1. Откройте JavaScript/TypeScript файл
+2. Наберите префикс сниппета
+3. Нажмите Tab для вставки кода
+4. Используйте Tab для перехода между параметрами
 
-## 📚 Сниппеты
+## Список сниппетов
 
 `;
 
@@ -97,7 +82,8 @@ Object.entries(categories).forEach(([categoryName, categorySnippets]) => {
 
     if (existingSnippets.length > 0) {
         readme += `### ${categoryName}\n\n`;
-        readme += createSnippetSection(existingSnippets);
+        readme += createSnippetTable(existingSnippets);
+        readme += '\n';
     }
 });
 
@@ -106,12 +92,13 @@ const categorizedSnippets = Object.values(categories).flat();
 const uncategorizedSnippets = Object.keys(snippets).filter(name => !categorizedSnippets.includes(name));
 
 if (uncategorizedSnippets.length > 0) {
-    readme += `### 🔧 Другие\n\n`;
-    readme += createSnippetSection(uncategorizedSnippets);
+    readme += `### Другие\n\n`;
+    readme += createSnippetTable(uncategorizedSnippets);
+    readme += '\n';
 }
 
-// Создаем таблицу быстрого доступа
-readme += `## 🚀 Быстрый справочник
+// Создаем полную таблицу для быстрого поиска
+readme += `## Быстрый справочник
 
 | Префикс | Описание | Категория |
 |---------|----------|-----------|
@@ -122,76 +109,76 @@ Object.entries(categories).forEach(([categoryName, categorySnippets]) => {
         const snippet = snippets[snippetName];
         if (snippet) {
             const prefix = Array.isArray(snippet.prefix) ? snippet.prefix.join(', ') : snippet.prefix;
-            const cleanCategoryName = categoryName.replace(/[🖥️⚡🔄📦🔮📋⏰🛠️]\s*/, '');
-            readme += `| \`${prefix}\` | ${snippet.description} | ${cleanCategoryName} |\n`;
+            readme += `| \`${prefix}\` | ${snippet.description} | ${categoryName} |\n`;
         }
     });
 });
 
-// Добавляем дополнительную информацию
+// Добавляем примеры использования
 readme += `
-## ✨ Особенности
-
-- 🎯 **Быстрые префиксы** - короткие и запоминающиеся триггеры
-- 📍 **Умные курсоры** - автоматическое позиционирование в нужных местах  
-- 🔄 **Навигация по Tab** - переход между параметрами
-- 💡 **IntelliSense** - подсказки и автодополнение
-- 🎨 **Современный синтаксис** - ES6+ и лучшие практики
-
-## 🎮 Примеры использования
+## Примеры использования
 
 ### Быстрое логирование
 \`\`\`javascript
 // Наберите: cl + Tab
-console.log(cursor_here);
+console.log(|); // курсор здесь
 \`\`\`
 
-### Создание стрелочной функции  
+### Создание функции
 \`\`\`javascript
 // Наберите: af + Tab
 const functionName = (params) => {
-    cursor_here
+    | // курсор здесь
 };
 \`\`\`
 
-### Асинхронная функция
+### Цикл по массиву
 \`\`\`javascript
-// Наберите: aaf + Tab  
-const functionName = async (params) => {
-    cursor_here
-};
+// Наберите: fe + Tab
+array.forEach((item) => {
+    | // курсор здесь
+});
 \`\`\`
 
-## 🤝 Вклад в проект
+## Поддерживаемые языки
 
-Есть идеи для новых сниппетов? 
-- Создайте [Issue](https://github.com/LisovskiyIvan/best-js-snippets-by-dayme/issues)
-- Отправьте [Pull Request](https://github.com/LisovskiyIvan/best-js-snippets-by-dayme/pulls)
+- JavaScript (.js)
+- TypeScript (.ts)
+- JavaScript React (.jsx)
+- TypeScript React (.tsx)
 
-## 📄 Лицензия
+## Особенности
 
-MIT License - используйте свободно!
+- Короткие и запоминающиеся префиксы
+- Автоматическое позиционирование курсора
+- Переход между параметрами с помощью Tab
+- Современный ES6+ синтаксис
+- Поддержка всех JS/TS файлов
 
-## 🔄 История изменений
+## Вклад в проект
 
-### v${packageJson.version} (Текущая версия)
-- ✅ Базовый набор JavaScript сниппетов
-- ✅ Консольные команды и отладка
-- ✅ Функции и стрелочные функции  
-- ✅ Циклы и методы массивов
-- ✅ Асинхронные операции и промисы
-- ✅ Работа с объектами
-- ✅ ES6+ модули и синтаксис
+Есть идеи для новых сниппетов?
+- [Создать Issue](https://github.com/LisovskiyIvan/best-js-snippets-by-dayme/issues)
+- [Отправить Pull Request](https://github.com/LisovskiyIvan/best-js-snippets-by-dayme/pulls)
+
+## Лицензия
+
+MIT License
+
+## История версий
+
+### v${packageJson.version}
+- Базовый набор JavaScript сниппетов
+- Поддержка консольных команд
+- Функции и стрелочные функции
+- Циклы и методы массивов
+- Асинхронные операции
+- Работа с объектами
+- ES6+ модули
 
 ---
 
-<div align="center">
-
-**Сделано с ❤️ для разработчиков**
-
-[⭐ Поставьте звезду](https://github.com/LisovskiyIvan/best-js-snippets-by-dayme) • [🐛 Сообщить об ошибке](https://github.com/LisovskiyIvan/best-js-snippets-by-dayme/issues) • [💡 Предложить идею](https://github.com/LisovskiyIvan/best-js-snippets-by-dayme/discussions)
-
-</div>
+[GitHub](https://github.com/LisovskiyIvan/best-js-snippets-by-dayme) | [Issues](https://github.com/LisovskiyIvan/best-js-snippets-by-dayme/issues)
 `;
 
 // Записываем README
@@ -201,8 +188,8 @@ fs.writeFileSync(path.join(__dirname, 'README.md'), readme, 'utf8');
 const totalSnippets = Object.keys(snippets).length;
 const totalCategories = Object.keys(categories).length;
 
-console.log('✅ README.md успешно сгенерирован!');
-console.log(`📊 Статистика:`);
-console.log(`   • Всего сниппетов: ${totalSnippets}`);
-console.log(`   • Категорий: ${totalCategories}`);
-console.log(`   • Размер файла: ${Math.round(readme.length / 1024)} KB`);
+console.log('README.md успешно сгенерирован!');
+console.log(`Статистика:`);
+console.log(`  Всего сниппетов: ${totalSnippets}`);
+console.log(`  Категорий: ${totalCategories}`);
+console.log(`  Размер файла: ${Math.round(readme.length / 1024)} KB`);
